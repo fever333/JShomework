@@ -12,17 +12,19 @@ const init = (event) => {
     deleted: [],
   };
 
+  let counter = 0;
+
   const drawToDo = (arr, selector) => {
     const element = document.querySelector(selector);
     element.innerHTML = "";
     arr.forEach(function (item, index) {
       element.innerHTML += `
-      <div class="card">
+      <div class="card" id="${item.cardId}"> 
     <p class="description">${item.cardDesc}</p>
     <p class="taskName">${item.cardTaskName}</p>
-    <button class="btnAnotherCardinProgress">In progress</button>
-    <button class="btnAnotherCardDone">Done</button>
-    <button class="btnAnotherCardDeleted">Deleted</button>
+    <button class="btnAnotherCardinProgress" data-card="${item.counter}">In progress</button>
+    <button class="btnAnotherCardDone" data-card="${item.counter}">Done</button>
+    <button class="btnAnotherCardDeleted" data-card="${item.counter}">Deleted</button>
     </div>
     `;
     });
@@ -33,19 +35,33 @@ const init = (event) => {
     allCards.todo.push({
       cardDesc: inputDesc.value,
       cardTaskName: inputTaskName.value,
+      cardId: counter,
     });
     drawToDo(allCards.todo, ".cardsToDo");
     form.reset();
+    counter++;
+    console.log(allCards.todo);
   });
 
   cards.addEventListener("click", (event) => {
     if (event.target.closest(".btnAnotherCardinProgress")) {
-      allCards.inProgress = allCards.todo;
+      const card = event.target.closest(".card");
+      const title = card.querySelector(".description").textContent;
+      const taskName = card.querySelector(".taskName").textContent;
+
+      allCards.todo.forEach(function (item, index) {
+        if (item.cardDesc === title && item.cardTaskName === taskName) {
+          allCards.inProgress.splice(index, 1, {
+            cardDesc: title,
+            cardTaskName: taskName,
+          });
+        }
+      });
       drawToDo(allCards.inProgress, ".cardsInProgress");
     }
     if (event.target.closest(".btnAnotherCardDone")) {
       allCards.done = allCards.inProgress;
-      allCards.done = allCards.todo;
+
       drawToDo(allCards.done, ".cardslDone");
     }
     if (event.target.closest(".btnAnotherCardDeleted")) {
@@ -56,6 +72,10 @@ const init = (event) => {
 };
 
 init();
+
+//<button class="btnAnotherCardinProgress" data-card="${item.cardId}">In progress</button>
+// <button class="btnAnotherCardDone" data-card="${item.cardId}">Done</button>
+// <button class="btnAnotherCardDeleted" data-card="${item.cardId}">Deleted</button>
 
 // const drawCardsInProgressDoneDeleted = () => {
 //   const btnAnotherCardinProgress = document.querySelector(
