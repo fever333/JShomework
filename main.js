@@ -22,14 +22,26 @@ const init = (event) => {
       <div class="card" id="${item.cardId}"> 
     <p class="description">${item.cardDesc}</p>
     <p class="taskName">${item.cardTaskName}</p>
-    <button class="btnAnotherCardinProgress" data-card="${item.counter}">In progress</button>
-    <button class="btnAnotherCardDone" data-card="${item.counter}">Done</button>
-    <button class="btnAnotherCardDeleted" data-card="${item.counter}">Deleted</button>
+    ${
+      selector !== ".cardsInProgress" && selector !== ".cardsDone"
+        ? '<button class="btnAnotherCardinProgress">In progress</button>'
+        : ""
+    }
+    ${
+      selector !== ".cardsDone"
+        ? '<button class="btnAnotherCardDone">Done</button>'
+        : ""
+    }
+    ${
+      selector !== ".cardsDeleted"
+        ? '<button class="btnAnotherCardDeleted">Deleted</button>'
+        : ""
+    }
+    
     </div>
     `;
     });
   };
-
   btnSubmit.addEventListener("click", (event) => {
     event.preventDefault();
     allCards.todo.push({
@@ -46,32 +58,72 @@ const init = (event) => {
   cards.addEventListener("click", (event) => {
     if (event.target.closest(".btnAnotherCardinProgress")) {
       const card = event.target.closest(".card");
-      const title = card.querySelector(".description").textContent;
-      const taskName = card.querySelector(".taskName").textContent;
+      const titleInProgress = card.querySelector(".description").textContent;
+      const taskNameInProgress = card.querySelector(".taskName").textContent;
+
+      allCards.inProgress.push({
+        cardDesc: titleInProgress,
+        cardTaskName: taskNameInProgress,
+        cardId: card.id,
+      });
+      // console.log(allCards.inProgress);
+      // console.log(card.id);
 
       allCards.todo.forEach(function (item, index) {
-        if (item.cardDesc === title && item.cardTaskName === taskName) {
-          allCards.inProgress.splice(index, 1, {
-            cardDesc: title,
-            cardTaskName: taskName,
-          });
+        if (item.cardId === +card.id) {
+          allCards.todo.splice(index, 1);
         }
       });
       drawToDo(allCards.inProgress, ".cardsInProgress");
+      drawToDo(allCards.todo, ".cardsToDo");
     }
     if (event.target.closest(".btnAnotherCardDone")) {
-      allCards.done = allCards.inProgress;
+      const card = event.target.closest(".card");
+      const titleDone = card.querySelector(".description").textContent;
+      const taskNameDone = card.querySelector(".taskName").textContent;
 
-      drawToDo(allCards.done, ".cardslDone");
+      allCards.done.push({
+        cardDesc: titleDone,
+        cardTaskName: taskNameDone,
+        cardId: card.id,
+      });
+
+      allCards.inProgress.forEach(function (item, index) {
+        if (item.cardId === card.id) {
+          allCards.inProgress.splice(index, 1);
+        }
+      });
+      drawToDo(allCards.done, ".cardsDone");
+      drawToDo(allCards.inProgress, ".cardsInProgress");
     }
     if (event.target.closest(".btnAnotherCardDeleted")) {
-      allCards.deleted = allCards.todo;
+      const card = event.target.closest(".card");
+      const titleDelete = card.querySelector(".description").textContent;
+      const taskNameDelete = card.querySelector(".taskName").textContent;
+
+      allCards.deleted.push({
+        cardDesc: titleDelete,
+        cardTaskName: taskNameDelete,
+        cardId: card.id,
+      });
+
+      allCards.done.forEach(function (item, index) {
+        if (item.cardId === card.id) {
+          allCards.done.splice(index, 1);
+        }
+      });
+
       drawToDo(allCards.deleted, ".cardsDeleted");
+      drawToDo(allCards.done, ".cardsDone");
     }
   });
 };
 
 init();
+
+// selector !== ".btnAnotherCardinProgress" && selector !== ".cardsDone";
+
+// '<button class="backToTodoBtn">Back to TODO?</button>'
 
 //<button class="btnAnotherCardinProgress" data-card="${item.cardId}">In progress</button>
 // <button class="btnAnotherCardDone" data-card="${item.cardId}">Done</button>
