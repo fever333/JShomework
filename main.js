@@ -16,6 +16,7 @@ const init = (event) => {
 
   const drawToDo = (arr, selector) => {
     const element = document.querySelector(selector);
+    console.log(selector);
     element.innerHTML = "";
     arr.forEach(function (item, index) {
       element.innerHTML += `
@@ -23,12 +24,14 @@ const init = (event) => {
     <p class="description">${item.cardDesc}</p>
     <p class="taskName">${item.cardTaskName}</p>
     ${
-      selector !== ".cardsInProgress" && selector !== ".cardsDone"
+      selector !== ".cardsInProgress" &&
+      selector !== ".cardsDone" &&
+      selector !== ".cardsDeleted"
         ? '<button class="btnAnotherCardinProgress">In progress</button>'
         : ""
     }
     ${
-      selector !== ".cardsDone"
+      selector !== ".cardsDone" && selector !== ".cardsDeleted"
         ? '<button class="btnAnotherCardDone">Done</button>'
         : ""
     }
@@ -37,6 +40,8 @@ const init = (event) => {
         ? '<button class="btnAnotherCardDeleted">Deleted</button>'
         : ""
     }
+    ${selector === ".cardsDeleted" ? "<button>Back in todo?</button>" : ""}
+ 
     
     </div>
     `;
@@ -49,7 +54,9 @@ const init = (event) => {
       cardTaskName: inputTaskName.value,
       cardId: counter,
     });
+
     drawToDo(allCards.todo, ".cardsToDo");
+
     form.reset();
     counter++;
     console.log(allCards.todo);
@@ -66,6 +73,7 @@ const init = (event) => {
         cardTaskName: taskNameInProgress,
         cardId: card.id,
       });
+
       // console.log(allCards.inProgress);
       // console.log(card.id);
 
@@ -74,8 +82,8 @@ const init = (event) => {
           allCards.todo.splice(index, 1);
         }
       });
-      drawToDo(allCards.inProgress, ".cardsInProgress");
       drawToDo(allCards.todo, ".cardsToDo");
+      drawToDo(allCards.inProgress, ".cardsInProgress");
     }
     if (event.target.closest(".btnAnotherCardDone")) {
       const card = event.target.closest(".card");
@@ -93,8 +101,11 @@ const init = (event) => {
           allCards.inProgress.splice(index, 1);
         }
       });
-      drawToDo(allCards.done, ".cardsDone");
       drawToDo(allCards.inProgress, ".cardsInProgress");
+      drawToDo(allCards.done, ".cardsDone");
+      drawToDo(allCards.deleted, ".cardsDeleted");
+
+      // drawToDo(allCards.inProgress, ".cardsInProgress");
     }
     if (event.target.closest(".btnAnotherCardDeleted")) {
       const card = event.target.closest(".card");
@@ -113,13 +124,22 @@ const init = (event) => {
         }
       });
 
-      drawToDo(allCards.deleted, ".cardsDeleted");
+      drawToDo(allCards.inProgress, ".cardsInProgress");
       drawToDo(allCards.done, ".cardsDone");
+      drawToDo(allCards.deleted, ".cardsDeleted");
     }
   });
 };
 
 init();
+
+// ${
+//   selector !== ".cardsDeleted" &&
+//   selector !== ".cardsInProgress" &&
+//   selector !== ".cardsDone"
+//     ? "<button>Back in todo</button>"
+//     : ""
+// }
 
 // selector !== ".btnAnotherCardinProgress" && selector !== ".cardsDone";
 
